@@ -2,7 +2,7 @@ package com.atguigu.gmall.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.atguigu.gmall.bean.UserAddress;
-import com.atguigu.gmall.usermanage.service.UserAddressService;
+import com.atguigu.gmall.manage.service.UserAddressService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
