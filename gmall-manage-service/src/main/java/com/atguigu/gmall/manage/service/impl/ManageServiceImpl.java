@@ -23,7 +23,8 @@ public class ManageServiceImpl implements ManageService {
 
     @Autowired
     BaseCatalog3Mapper baseCatalog3Mapper;
-
+    @Autowired
+    SpuInfoMapper spuInfoMapper;
     @Override
     public List<BaseCatalog1> getBaseCatalog1() {
         List<BaseCatalog1> getBaseCatalog1 = baseCatalog1Mapper.selectAll();
@@ -60,12 +61,12 @@ public class ManageServiceImpl implements ManageService {
         // 说明value_name的值没有拿到！
         // 保存数据：编辑数据放到一起来处理。
         // 是否有主键,操作都是指的是平台属性操作
-        if (baseAttrInfo.getId()!=null && baseAttrInfo.getId().length()>0){
+        if (baseAttrInfo.getId() != null && baseAttrInfo.getId().length() > 0) {
             // 有主键 ，则修改
             baseAttrInfoMapper.updateByPrimaryKey(baseAttrInfo);
-        }else {
+        } else {
             // 没有主键则需要添加,注意一下，当没有主键的时候，数据的id要设置成null，如果不设置有可能会出现空字符串
-            if(baseAttrInfo.getId().length()==0){
+            if (baseAttrInfo.getId().length() == 0) {
                 baseAttrInfo.setId(null);
             }
             // 开始插入数据
@@ -78,11 +79,11 @@ public class ManageServiceImpl implements ManageService {
         baseAttrValueMapper.delete(baseAttrValue);
 
         // 开始操作属性值列表
-        if (baseAttrInfo.getAttrValueList()!=null&&baseAttrInfo.getAttrValueList().size()>0){
+        if (baseAttrInfo.getAttrValueList() != null && baseAttrInfo.getAttrValueList().size() > 0) {
             // 循环数据 itar : a-->array iter : each
             for (BaseAttrValue attrValue : baseAttrInfo.getAttrValueList()) {
                 // 做插入操作
-                if (attrValue.getId().length()==0){
+                if (attrValue.getId().length() == 0) {
                     attrValue.setId(null);
                 }
                 attrValue.setAttrId(baseAttrInfo.getId());
@@ -91,12 +92,25 @@ public class ManageServiceImpl implements ManageService {
             }
         }
     }
-    // 数据应该封装成BaseAttrInfo ! BaseAttrValue 根据BaseAttrInfo==id
+
     @Override
-    public List<BaseAttrValue> getAttrValueList(String attrId) {
+    public BaseAttrInfo getAttrInfo(String attrId) {
+        //attrId实际上是BaseAttrInfo的Id
+        BaseAttrInfo baseAttrInfo = baseAttrInfoMapper.selectByPrimaryKey(attrId);
+        //创建BaseAttrValue 的属性值对象
         BaseAttrValue baseAttrValue = new BaseAttrValue();
-        baseAttrValue.setAttrId(attrId);
-        return baseAttrValueMapper.select(baseAttrValue);
+        //根据attrId查询baseAttrValue的对象
+        baseAttrValue.setAttrId(baseAttrInfo.getId());
+        //查询BaseAttrValue 的集合
+        List<BaseAttrValue> attrValueList = baseAttrValueMapper.select(baseAttrValue);
+        baseAttrInfo.setAttrValueList(attrValueList);
+
+        return baseAttrInfo;
     }
+    public List<SpuInfo> getSpuInfoList(SpuInfo spuInfo){
+        List<SpuInfo> spuInfoList = spuInfoMapper.select(spuInfo);
+        return  spuInfoList;
+    }
+
 }
 

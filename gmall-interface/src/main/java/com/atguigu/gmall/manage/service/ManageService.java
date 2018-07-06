@@ -12,6 +12,8 @@ public interface ManageService {
     // 保存数据方法
     void saveAttrInfo(BaseAttrInfo baseAttrInfo);
 
-    List<BaseAttrValue> getAttrValueList(String attrId);
 
+    BaseAttrInfo getAttrInfo(String attrId);
+    //查询cpu列表查询
+    List<SpuInfo> getSpuInfoList(SpuInfo spuInfo);
 }

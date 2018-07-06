@@ -69,11 +69,11 @@ public class AttrManageController {
     @ResponseBody
     public List<BaseAttrValue> getAttrValueList(String attrId){
 //        根据attrId 进行查询
-
-        List<BaseAttrValue>  baseAttrValue = manageService.getAttrValueList(attrId);
-        return  baseAttrValue;
+        BaseAttrInfo attrInfo = manageService.getAttrInfo(attrId);
+        return  attrInfo.getAttrValueList();
 
     }
+
 
 }
 
