@@ -5,26 +5,42 @@ import com.atguigu.gmall.bean.*;
 import com.atguigu.gmall.manage.mapper.*;
 import com.atguigu.gmall.manage.service.ManageService;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.List;
 
 @Service
 public class ManageServiceImpl implements ManageService {
-    @Autowired
-    BaseAttrInfoMapper baseAttrInfoMapper;
+
 
     @Autowired
-    BaseAttrValueMapper baseAttrValueMapper;
+    private BaseAttrInfoMapper baseAttrInfoMapper;
 
     @Autowired
-    BaseCatalog1Mapper baseCatalog1Mapper;
+    private BaseAttrValueMapper baseAttrValueMapper;
 
     @Autowired
-    BaseCatalog2Mapper baseCatalog2Mapper;
+    private BaseCatalog1Mapper baseCatalog1Mapper;
 
     @Autowired
-    BaseCatalog3Mapper baseCatalog3Mapper;
+    private BaseCatalog2Mapper baseCatalog2Mapper;
+
     @Autowired
-    SpuInfoMapper spuInfoMapper;
+    private BaseCatalog3Mapper baseCatalog3Mapper;
+
+    @Autowired
+    private SpuInfoMapper spuInfoMapper;
+    @Autowired
+    private BaseSaleAttrMapper baseSaleAttrMapper;
+
+    @Autowired
+    private SpuImageMapper spuImageMapper;
+
+    @Autowired
+    private SpuSaleAttrMapper spuSaleAttrMapper;
+
+    @Autowired
+    private SpuSaleAttrValueMapper spuSaleAttrValueMapper;
+
     @Override
     public List<BaseCatalog1> getBaseCatalog1() {
         List<BaseCatalog1> getBaseCatalog1 = baseCatalog1Mapper.selectAll();
@@ -95,22 +111,88 @@ public class ManageServiceImpl implements ManageService {
 
     @Override
     public BaseAttrInfo getAttrInfo(String attrId) {
-        //attrId实际上是BaseAttrInfo的Id
+        // attrId 实际上是BaseAttrInfo 的id。
         BaseAttrInfo baseAttrInfo = baseAttrInfoMapper.selectByPrimaryKey(attrId);
-        //创建BaseAttrValue 的属性值对象
+        // 创建BaseAttrValue对象
         BaseAttrValue baseAttrValue = new BaseAttrValue();
-        //根据attrId查询baseAttrValue的对象
+        // 将attrId赋值，根据attrId进行查询BaseAttrValue对象
         baseAttrValue.setAttrId(baseAttrInfo.getId());
-        //查询BaseAttrValue 的集合
+        // 查询BaseAttrValue的集合
         List<BaseAttrValue> attrValueList = baseAttrValueMapper.select(baseAttrValue);
+        // 因为控制器需要的是AttrValueList，所以讲AttrValueList()赋值
         baseAttrInfo.setAttrValueList(attrValueList);
-
+        // 将BaseAttrInfo对象返回
         return baseAttrInfo;
     }
-    public List<SpuInfo> getSpuInfoList(SpuInfo spuInfo){
-        List<SpuInfo> spuInfoList = spuInfoMapper.select(spuInfo);
-        return  spuInfoList;
+
+    @Override
+    public List<SpuInfo> getSpuInfoList(SpuInfo spuInfo) {
+        return spuInfoMapper.select(spuInfo);
     }
 
-}
+    @Override
+    public List<BaseSaleAttr> getBaseSaleAttrList() {
+        return baseSaleAttrMapper.selectAll();
+    }
 
+    @Override
+    public void saveSpuInfo(SpuInfo spuInfo) {
+        //保存数据为：spuImg spuInfo spuSaleAttr spuSaleAttrValue
+        if (spuInfo.getId() != null && spuInfo.getId().length() > 0) {
+            spuInfoMapper.updateByPrimaryKey(spuInfo);
+        } else {
+            if ( spuInfo.getId()!=null &&spuInfo.getId().length() == 0) {
+                spuInfo.setId(null);
+            }
+            spuInfoMapper.insertSelective(spuInfo);
+        }
+        //spuImge
+        //先删除，在添加
+        SpuImage spuImage = new SpuImage();
+        spuImage.setSpuId(spuInfo.getId());
+        spuImageMapper.delete(spuImage);
+        List<SpuImage> spuImageList = spuInfo.getSpuImageList();
+
+        for (SpuImage image : spuImageList) {
+            //设置Id为NULL，自主镇长
+            if(image.getId() != null && image.getId().length() == 0){
+                image.setId(null);
+        }
+        image.setSpuId(spuInfo.getId());
+            spuImageMapper.insertSelective(image);
+        }
+        //属性值。想删除，后插入
+        SpuSaleAttr spuSaleAttr = new SpuSaleAttr();
+        spuSaleAttr.setSpuId(spuInfo.getId());
+        spuSaleAttrMapper.delete(spuSaleAttr);
+
+
+        SpuSaleAttrValue spuSaleAttrValue = new SpuSaleAttrValue();
+        spuSaleAttrValue.setSpuId(spuInfo.getId());
+        spuSaleAttrValueMapper.delete(spuSaleAttrValue);
+
+        List<SpuSaleAttr> spuSaleAttrList = spuInfo.getSpuSaleAttrList();
+        for (SpuSaleAttr saleAttr : spuSaleAttrList) {
+            if(saleAttr.getId() != null && saleAttr.getId().length() == 0){
+                saleAttr.setId(null);
+            }
+            saleAttr.setSpuId(spuInfo.getId());
+            spuSaleAttrMapper.insertSelective(saleAttr);
+
+            List<SpuSaleAttrValue> spuSaleAttrValueList = saleAttr.getSpuSaleAttrValueList();
+            for (SpuSaleAttrValue saleAttrValue : spuSaleAttrValueList) {
+                if(saleAttrValue.getId() != null && saleAttrValue.getId().length() ==0){
+                    saleAttrValue.setId(null);
+            }
+            saleAttrValue.setSpuId(spuInfo.getId());
+                spuSaleAttrValueMapper.insertSelective(saleAttrValue);
+
+        }
+
+
+        }
+
+
+
+    }
+}

@@ -69,11 +69,21 @@ public class AttrManageController {
     @ResponseBody
     public List<BaseAttrValue> getAttrValueList(String attrId){
 //        根据attrId 进行查询
+
         BaseAttrInfo attrInfo = manageService.getAttrInfo(attrId);
         return  attrInfo.getAttrValueList();
+    }
+    @RequestMapping("baseSaleAttrList")
+    @ResponseBody
+    public List<BaseSaleAttr> getSaleAttrList(){
+        return manageService.getBaseSaleAttrList();
+
+    }
+    @RequestMapping(value = "saveSpuInfo",method = RequestMethod.POST)
+    @ResponseBody
+    public void saveSpuInfo(SpuInfo spuInfo){
+        manageService.saveSpuInfo(spuInfo);
 
     }
 
-
 }
-

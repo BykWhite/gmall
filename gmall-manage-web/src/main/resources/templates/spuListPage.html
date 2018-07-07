@@ -76,6 +76,9 @@
         // 初始化spudlg
         initSpuInfoDlg();  //在spuInfoPage.html中
     }
-
+function reloadSpuList() {
+    /*var ctg3val=$("#ctg3ForAttrList").combobox('getValue');*/
+    $('#spulist_dg').datagrid({url:'spuListPage?catalog3Id='+ctg3val});
+}
 </script>
 </html>
